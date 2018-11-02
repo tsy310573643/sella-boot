@@ -131,6 +131,7 @@ public class OrderServiceImpl implements OrderService {
         }
         productInfoService.increaseStock(cartDTOList);
         // 4.如果已支付需要退款
+        orderDTO.setBuyerOpenid(orderMaster.getBuyerOpenid());
         return orderDTO;
     }
 
