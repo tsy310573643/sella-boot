@@ -7,6 +7,7 @@ import com.neuedu.sell.entity.OrderDetail;
 import com.neuedu.sell.entity.OrderMaster;
 import com.neuedu.sell.entity.ProductInfo;
 import com.neuedu.sell.enums.OrderStatusEnum;
+import com.neuedu.sell.enums.PayStatusEnum;
 import com.neuedu.sell.enums.ResultEnum;
 import com.neuedu.sell.exception.SellException;
 import com.neuedu.sell.repository.OrderDetailRepository;
@@ -134,11 +135,31 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDTO finish(OrderDTO orderDTO) {
-        return null;
+        // 1.从数据库中查询出订单信息
+        OrderMaster orderMaster = orderMasterRepository.findOne(orderDTO.getOrderId());
+        // 2.判断状态
+        if (!orderMaster.getOrderStatus().equals(OrderStatusEnum.NEW.getCode())){
+            throw new SellException(ResultEnum.ORDER_STATUS_ERROR);
+        }
+        // 3.修改状态
+        orderMaster.setOrderStatus(OrderStatusEnum.FINISHED.getCode());
+        // 4.保存到数据库
+        orderMasterRepository.save(orderMaster);
+        return orderDTO;
     }
 
     @Override
     public OrderDTO paid(OrderDTO orderDTO) {
-        return null;
+        // 1.从数据库查询订单信息
+        OrderMaster orderMaster = orderMasterRepository.findOne(orderDTO.getOrderId());
+        // 2.判断状态
+        if (orderMaster.getPayStatus().equals(PayStatusEnum.PAID.getCode())) {
+            throw new SellException(ResultEnum.PAY_STATUS_ERROR);
+        }
+        // 3.修改状态
+        orderMaster.setPayStatus(PayStatusEnum.PAID.getCode());
+        // 4.保存到数据库
+        orderMasterRepository.save(orderMaster);
+        return orderDTO;
     }
 }
