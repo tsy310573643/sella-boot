@@ -73,16 +73,17 @@ public class OrderServiceImpl implements OrderService {
 
         // 3.订单主表入库
         OrderMaster orderMaster = new OrderMaster();
-        BeanUtils.copyProperties(orderDTO,orderMaster);
-        orderMaster.setOrderId(orderId);
+        orderDTO.setOrderId(orderId);
+        BeanUtils.copyProperties(orderDTO, orderMaster);
         orderMaster.setOrderAmount(orderAmount);
         orderMasterRepository.save(orderMaster);
         // 4.扣库存
         List<CartDTO> cartDTOList = new ArrayList<>();
         for (OrderDetail orderDetail : orderDTO.getOrderDetailList()) {
-            cartDTOList.add(new CartDTO(orderDetail.getProductId(),orderDetail.getProductQuantity()));
+            cartDTOList.add(new CartDTO(orderDetail.getProductId(), orderDetail.getProductQuantity()));
         }
         productInfoService.decreaseStock(cartDTOList);
+//        orderDTO.setOrderId(orderId);
         return orderDTO;
     }
 
@@ -90,11 +91,11 @@ public class OrderServiceImpl implements OrderService {
     public OrderDTO findOne(String orderId) {
         // 查询订单主表信息
         OrderMaster orderMaster = orderMasterRepository.findOne(orderId);
-        if(orderMaster == null){
+        if (orderMaster == null) {
             throw new SellException(ResultEnum.ORDER_NOT_EXIST);
         }
         List<OrderDetail> orderDetailList = orderDetailRepository.findByOrderId(orderId);
-        if(orderDetailList.size() == 0){
+        if (orderDetailList.size() == 0) {
             throw new SellException(ResultEnum.ORDERDETAIL_NOT_EXIST);
         }
         OrderDTO orderDTO = OrderMaster2OrderDTOConverter.convert(orderMaster);
@@ -104,7 +105,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<OrderDTO> findList(String buyerOpenid, Pageable pageable) {
-        Page<OrderMaster> page = orderMasterRepository.findByBuyerOpenid(buyerOpenid,pageable);
+        Page<OrderMaster> page = orderMasterRepository.findByBuyerOpenid(buyerOpenid, pageable);
         List<OrderDTO> orderDTOList = OrderMaster2OrderDTOConverter.convert(page.getContent());
         return new PageImpl<>(orderDTOList, pageable, page.getTotalElements());
     }
@@ -115,7 +116,7 @@ public class OrderServiceImpl implements OrderService {
         // 订单应该从数据库中查询出来
         OrderMaster orderMaster = orderMasterRepository.findOne(orderDTO.getOrderId());
         // 1.判断订单状态
-        if (!orderMaster.getOrderStatus().equals(OrderStatusEnum.NEW.getCode())){
+        if (!orderMaster.getOrderStatus().equals(OrderStatusEnum.NEW.getCode())) {
             throw new SellException(ResultEnum.ORDER_STATUS_ERROR);
         }
         // 2.修改订单状态
@@ -126,7 +127,7 @@ public class OrderServiceImpl implements OrderService {
         // 根据orderId去查询orderDetail集合
         List<OrderDetail> orderDetailList = orderDetailRepository.findByOrderId(orderMaster.getOrderId());
         for (OrderDetail orderDetail : orderDetailList) {
-            cartDTOList.add(new CartDTO(orderDetail.getProductId(),orderDetail.getProductQuantity()));
+            cartDTOList.add(new CartDTO(orderDetail.getProductId(), orderDetail.getProductQuantity()));
         }
         productInfoService.increaseStock(cartDTOList);
         // 4.如果已支付需要退款
@@ -138,7 +139,7 @@ public class OrderServiceImpl implements OrderService {
         // 1.从数据库中查询出订单信息
         OrderMaster orderMaster = orderMasterRepository.findOne(orderDTO.getOrderId());
         // 2.判断状态
-        if (!orderMaster.getOrderStatus().equals(OrderStatusEnum.NEW.getCode())){
+        if (!orderMaster.getOrderStatus().equals(OrderStatusEnum.NEW.getCode())) {
             throw new SellException(ResultEnum.ORDER_STATUS_ERROR);
         }
         // 3.修改状态
