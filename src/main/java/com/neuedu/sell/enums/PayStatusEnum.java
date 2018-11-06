@@ -3,10 +3,10 @@ package com.neuedu.sell.enums;
 import lombok.Getter;
 
 @Getter
-public enum PayStatusEnum {
+public enum PayStatusEnum implements CodeEnum {
 
-    NOT_PAY(0,"未支付"),
-    PAID(1,"已支付");
+    NOT_PAY(0,"等待支付"),
+    PAID(1,"支付成功");
 
     private Integer code;
     private String message;
