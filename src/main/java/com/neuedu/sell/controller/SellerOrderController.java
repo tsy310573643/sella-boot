@@ -34,6 +34,7 @@ public class SellerOrderController {
         Page<OrderDTO> orderDTOPage = orderService.findList(request);
         model.addObject("orderDTOPage", orderDTOPage);
         model.addObject("currentPage", page);
+        model.addObject("size", size);
         return model;
     }
 
